@@ -354,7 +354,7 @@ void Patchwork::convolve(const vector<Filter> & filters,
 	}
 }
 
-bool Patchwork::InitFFTW(int maxRows, int maxCols)
+bool Patchwork::InitFFTW(int maxRows, int maxCols, bool cacheWisdom)
 {
 	// It is an error if maxRows or maxCols are too small
 	if ((maxRows < 2) || (maxCols < 2))
@@ -366,14 +366,17 @@ bool Patchwork::InitFFTW(int maxRows, int maxCols)
 	int dims[2] = {maxRows, maxCols};
 	
 #ifndef FFLD_HOGPYRAMID_DOUBLE
-	// Use fftwf_import_wisdom_from_file and not fftwf_import_wisdom_from_filename as old versions
-	// of fftw seem to not include it
-	FILE * file = fopen("wisdom.fftw", "r");
-	
-	if (file) {
-		fftwf_import_wisdom_from_file(file);
-		fclose(file);
-	}
+    if (cacheWisdom)
+    {
+        // Use fftwf_import_wisdom_from_file and not fftwf_import_wisdom_from_filename as old versions
+        // of fftw seem to not include it
+        FILE * file = fopen("wisdom.fftw", "r");
+
+        if (file) {
+            fftwf_import_wisdom_from_file(file);
+            fclose(file);
+        }
+    }
 	
 	const fftwf_plan forwards =
 		fftwf_plan_many_dft_r2c(2, dims, HOGPyramid::NbFeatures, tmp.data(), 0,
@@ -385,19 +388,25 @@ bool Patchwork::InitFFTW(int maxRows, int maxCols)
 		fftwf_plan_dft_c2r_2d(dims[0], dims[1], reinterpret_cast<fftwf_complex *>(tmp.data()),
 							  tmp.data(), FFTW_PATIENT);
 	
-	file = fopen("wisdom.fftw", "w");
-	
-	if (file) {
-		fftwf_export_wisdom_to_file(file);
-		fclose(file);
-	}
+    if (cacheWisdom)
+    {
+        FILE * file = fopen("wisdom.fftw", "w");
+
+        if (file) {
+            fftwf_export_wisdom_to_file(file);
+            fclose(file);
+        }
+    }
 #else
-	FILE * file = fopen("wisdom.fftw", "r");
-	
-	if (file) {
-		fftw_import_wisdom_from_file(file);
-		fclose(file);
-	}
+    if (cacheWisdom)
+    {
+        FILE * file = fopen("wisdom.fftw", "r");
+
+        if (file) {
+            fftw_import_wisdom_from_file(file);
+            fclose(file);
+        }
+    }
 	
 	const fftw_plan forwards =
 		fftw_plan_many_dft_r2c(2, dims, HOGPyramid::NbFeatures, tmp.data(), 0,
@@ -409,12 +418,15 @@ bool Patchwork::InitFFTW(int maxRows, int maxCols)
 		fftw_plan_dft_c2r_2d(dims[0], dims[1], reinterpret_cast<fftw_complex *>(tmp.data()),
 							 tmp.data(), FFTW_PATIENT);
 	
-	file = fopen("wisdom.fftw", "w");
-	
-	if (file) {
-		fftw_export_wisdom_to_file(file);
-		fclose(file);
-	}
+    if (cacheWisdom)
+    {
+        FILE * file = fopen("wisdom.fftw", "w");
+
+        if (file) {
+            fftw_export_wisdom_to_file(file);
+            fclose(file);
+        }
+    }
 #endif
 	
 	// If successful, set MaxRows_, MaxCols_, HalfCols_, Forwards_ and Inverse_

@@ -84,7 +84,7 @@ public:
 	/// @param[in] maxCols Maximum number of columns of a pyramid level (including padding).
 	/// @returns Whether the initialization was successful.
 	/// @note Must be called before any other method (including constructors).
-	static bool InitFFTW(int maxRows, int maxCols);
+    static bool InitFFTW(int maxRows, int maxCols, bool cacheWisdom = true);
 	
 	/// Returns the current maximum number of rows of a pyramid level (including padding).
 	static int MaxRows();

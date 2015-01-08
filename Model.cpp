@@ -479,8 +479,9 @@ void Model::convolve(const HOGPyramid & pyramid, vector<HOGPyramid::Matrix> & sc
 	for (int i = 0; i < interval; ++i) {
 		scores[i] = HOGPyramid::Matrix();
 		
-		for (int j = 0; j < nbParts; ++j)
-			(*positions)[j][i] = Positions();
+		if (positions)
+			for (int j = 0; j < nbParts; ++j)
+				(*positions)[j][i] = Positions();
 	}
 	
 	// Add the bias if necessary

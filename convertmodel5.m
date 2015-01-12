@@ -53,7 +53,7 @@ for i = 1:nbModels
     else
         % Handle case where there is a deformation model for the root
         root = model.symbols(model.rules{rhs(1)}(1).rhs).filter;
-        bias = model_get_block(model, model.rules{model.start}(i).offset);
+        bias = model_get_block(model, model.rules{model.start}(i).offset) * model.features.bias;
     end
     
     fprintf(fileID, '%d %f\n', nbParts, bias);

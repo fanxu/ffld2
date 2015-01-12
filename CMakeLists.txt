@@ -27,8 +27,15 @@ ENDIF()
 # Also list the headers so that they are displayed along the .cpp files in the IDE
 SET(HEADERS HOGPyramid.h Intersector.h JPEGImage.h LBFGS.h Mixture.h Model.h Object.h Patchwork.h Rectangle.h Scene.h SimpleOpt.h)
 SET(SOURCES HOGPyramid.cpp JPEGImage.cpp LBFGS.cpp Mixture.cpp Model.cpp Object.cpp Patchwork.cpp Rectangle.cpp Scene.cpp)
-ADD_EXECUTABLE(train ${HEADERS} ${SOURCES} train.cpp)
-ADD_EXECUTABLE(test ${HEADERS} ${SOURCES} test.cpp)
+
+# Add a library version of the software that we can link against
+ADD_LIBRARY(ffld2 STATIC ${HEADERS} ${SOURCES})
+
+# train and test excutables
+ADD_EXECUTABLE(train train.cpp)
+target_link_libraries(train ffld2)
+ADD_EXECUTABLE(test test.cpp)
+target_link_libraries(test ffld2)
 
 # Define the options
 IF(FFLD_HOGPYRAMID_DOUBLE)
